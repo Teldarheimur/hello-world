@@ -1,0 +1,31 @@
+# put code in the text segment, because it is executable
+.seg text
+.entry
+    # syscall number
+    ldi r1, 4
+    # start of string
+    ldi r6, hello
+    # end of string
+    ldi r7, hello_end
+    # increment value, using r8 because loading into r8b zeroes the high byte
+    ldi r8b, 1
+loop:
+    # read into r2l the current character at [r6]
+    load r2l, r6, r0
+    # initiate syscall 4 (4 is set in r1) that prints character in r2l
+    syscall
+    # add the value in r8 (which is 1) to r6, incrementing the string pointer
+    add r6, r6, r8
+    # subtract r6 from r7 discarding the result (i.e. comparing them to see if they are equal)
+    sub r0, r6, r7
+    # if the result was zero, the zero flag would be set, and we would be done
+    # so we jump back to the loop body if it was NOT set
+    jnz loop
+    # end
+    halt
+
+# put data in the data segment which is readable (and writeable)
+.seg data
+hello:
+    .string Hello World\n
+hello_end:
